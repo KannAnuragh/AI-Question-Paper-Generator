@@ -1,0 +1,165 @@
+# ─────────────────────────────────────────────────────────────
+# QuestionPaper.ai — Local Development Stack
+# Run: docker compose up -d
+# API docs: http://localhost:8000/docs
+# Flower:   http://localhost:5555
+# ─────────────────────────────────────────────────────────────
+
+services:
+
+  # ── FastAPI backend ───────────────────────────────────────
+  api:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/app
+      - uploads_data:/app/uploads
+    environment:
+      DATABASE_URL: postgresql://qpuser:qppass@postgres:5432/questionpaper
+      SECRET_KEY: local-dev-secret-change-in-production
+      REDIS_URL: redis://redis:6379/0
+      CELERY_BROKER_URL: redis://redis:6379/0
+      CELERY_RESULT_BACKEND: redis://redis:6379/1
+      UPLOAD_DIR: /app/uploads
+      QDRANT_URL: http://qdrant:6333
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+
+  # ── Celery worker (Phase 2+) ──────────────────────────────
+  worker:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    volumes:
+      - ./backend:/app
+      - uploads_data:/app/uploads
+    environment:
+      DATABASE_URL: postgresql://qpuser:qppass@postgres:5432/questionpaper
+      REDIS_URL: redis://redis:6379/0
+      CELERY_BROKER_URL: redis://redis:6379/0
+      CELERY_RESULT_BACKEND: redis://redis:6379/1
+      UPLOAD_DIR: /app/uploads
+    depends_on:
+      - redis
+      - postgres
+    restart: unless-stopped
+    command: >
+      celery -A celery_app worker
+      --loglevel=info
+      --queues=high_priority,normal,low_priority
+      --concurrency=4
+    profiles: ["celery"]   # opt-in: docker compose --profile celery up
+
+  # ── Flower — Celery monitoring ────────────────────────────
+  flower:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "5555:5555"
+    environment:
+      CELERY_BROKER_URL: redis://redis:6379/0
+    depends_on:
+      - redis
+    restart: unless-stopped
+    command: celery -A celery_app flower --port=5555
+    profiles: ["celery"]
+
+  # ── PostgreSQL ────────────────────────────────────────────
+  postgres:
+    image: postgres:16-alpine
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: questionpaper
+      POSTGRES_USER: qpuser
+      POSTGRES_PASSWORD: qppass
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U qpuser -d questionpaper"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # ── Redis ─────────────────────────────────────────────────
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    restart: unless-stopped
+
+  # ── Qdrant vector DB (Phase 4+) ───────────────────────────
+  qdrant:
+    image: qdrant/qdrant:v1.12.4
+    ports:
+      - "6333:6333"
+      - "6334:6334"
+    volumes:
+      - qdrant_data:/qdrant/storage
+    restart: unless-stopped
+    profiles: ["ai"]   # opt-in: docker compose --profile ai up
+
+  # ── Neo4j Graph DB ─────────────────────────────────────────
+  neo4j:
+    image: neo4j:5.23.0
+    ports:
+      - "7474:7474" # HTTP
+      - "7687:7687" # Bolt
+    environment:
+      NEO4J_AUTH: neo4j/qppassword
+    volumes:
+      - neo4j_data:/data
+    restart: unless-stopped
+    profiles: ["ai"]
+
+  # ── MinIO object storage (optional, swap for local uploads) ─
+  minio:
+    image: minio/minio:latest
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    volumes:
+      - minio_data:/data
+    command: server /data --console-address ":9001"
+    restart: unless-stopped
+    profiles: ["storage"]
+
+  # ── Nginx reverse proxy ───────────────────────────────────
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - api
+    restart: unless-stopped
+    profiles: ["proxy"]
+
+volumes:
+  postgres_data:
+  redis_data:
+  qdrant_data:
+  minio_data:
+  uploads_data:
+  neo4j_data:

@@ -1,0 +1,174 @@
+# ==============================================================================
+# Gitignore Configuration for QuestionPaper.ai (FastAPI + Next.js Monorepo)
+# ==============================================================================
+
+# ------------------------------------------------------------------------------
+# 1. Environment & Secrets (CRITICAL - DO NOT COMMIT SECRETS)
+# ------------------------------------------------------------------------------
+.env
+.env.*
+!.env.example
+*.env
+*.pem
+*.key
+*.cert
+*.pfx
+jwt-private.pem
+jwt-public.pem
+
+# ------------------------------------------------------------------------------
+# 2. Python (Backend - FastAPI & Celery)
+# ------------------------------------------------------------------------------
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# C extensions
+*.abi3.so
+*.pyd
+
+# Distribution / packaging
+bin/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual Environments
+.venv/
+venv/
+ENV/
+env/
+backend/venv/
+backend/.venv/
+backend/env/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# Python Tools, Linter, and Tests
+.pytest_cache/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+htmlcov/
+nosetests.xml
+pylintrc
+.pylintrc
+.dmypy.json
+dmypy.json
+.mypy_cache/
+.ruff_cache/
+.vscode-test/
+
+# ------------------------------------------------------------------------------
+# 3. Node.js & React (Frontend - Next.js)
+# ------------------------------------------------------------------------------
+# Dependencies
+node_modules/
+frontend/node_modules/
+jspm_packages/
+.pnp
+.pnp.js
+
+# Next.js Build Output
+.next/
+frontend/.next/
+out/
+frontend/out/
+
+# Production Build Directories
+frontend/build/
+
+# Debug and Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+*.log
+
+# TypeScript
+*.tsbuildinfo
+frontend/next-env.d.ts
+
+# ------------------------------------------------------------------------------
+# 4. Storage, Uploads & Databases
+# ------------------------------------------------------------------------------
+# Local Uploaded Documents (Dynamic files uploaded by teachers/users)
+uploads/
+backend/uploads/
+backend/app/uploads/
+
+# Local databases (SQLite, etc.)
+*.db
+*.sqlite
+*.sqlite3
+*.db-journal
+*.db-shm
+*.db-wal
+
+# Celery / Redis state dumps
+dump.rdb
+*.aof
+
+# Neo4j and local graph DB state dumps (if run locally outside Docker)
+data/
+logs/
+
+# ------------------------------------------------------------------------------
+# 5. OS & Editor Specific Files
+# ------------------------------------------------------------------------------
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon\r
+._*
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+*.lnk
+*.cab
+*.msi
+*.msm
+*.msp
+*.lnk
+desktop.ini
+
+# IDEs and Editors
+.vscode/
+!.vscode/extensions.json
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+*~

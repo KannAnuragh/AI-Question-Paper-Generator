@@ -1,0 +1,10 @@
+cd backend
+celery -A worker.celery_app worker --loglevel=info --pool=solo
+
+
+cd backend
+uvicorn app.main:app --reload
+
+
+cd ./frontend
+npm run dev
