@@ -1,4 +1,4 @@
-# QuestionPaper.ai (AI Question Paper Generator)
+# TestBoost.ai (AI Question Paper Generator)
 
 An advanced, AI-powered assessment generation platform designed to build balanced, syllabus-aligned question papers. It processes reference documents (textbooks, syllabus, slide decks, notes) and utilizes RAG (Retrieval-Augmented Generation) coupled with Knowledge Graphs to map questions against Bloom's Taxonomy levels, course outcomes (COs), and difficulty targets.
 

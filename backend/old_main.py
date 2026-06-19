@@ -1,6 +1,6 @@
 """
-QuestionPaper.ai — Monolithic FastAPI Backend
-=============================================
+TestBoost.ai — Monolithic FastAPI Backend
+=========================================
 Phase 2: Celery task queue, SSE progress, real document processing
 Sections:
   1.  Imports & Config
@@ -1108,7 +1108,7 @@ if CELERY_AVAILABLE:
 # 9. APP FACTORY
 # ─────────────────────────────────────────────────────────────
 app = FastAPI(
-    title="QuestionPaper.ai API",
+    title="TestBoost.ai API",
     description="AI-powered assessment platform — Phase 2",
     version="0.2.0",
 )
@@ -1947,7 +1947,7 @@ def health(db: Session = Depends(get_db)):
 @app.get("/", tags=["System"])
 def root():
     return {
-        "name":    "QuestionPaper.ai API",
+        "name":    "TestBoost.ai API",
         "version": "0.2.0",
         "docs":    "/docs",
         "health":  "/health",

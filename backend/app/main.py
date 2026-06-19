@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI(
-    title="QuestionPaper.ai API (Modular)",
+    title="TestBoost.ai API (Modular)",
     description="AI-powered assessment platform — Modular Monolith",
     version="0.3.0",
 )
@@ -82,7 +82,7 @@ def health():
 @app.get("/", tags=["System"])
 def root():
     return {
-        "name": "QuestionPaper.ai API (Modular)",
+        "name": "TestBoost.ai API (Modular)",
         "version": "0.3.0",
         "docs": "/docs",
         "health": "/health",

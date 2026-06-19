@@ -1,5 +1,5 @@
 # ─────────────────────────────────────────────────────────────
-# QuestionPaper.ai — Local Development Stack
+# TestBoost.ai — Local Development Stack
 # Run: docker compose up -d
 # API docs: http://localhost:8000/docs
 # Flower:   http://localhost:5555
