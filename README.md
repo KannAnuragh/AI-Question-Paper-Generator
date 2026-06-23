@@ -1,145 +1,155 @@
-# TestBoost.ai (AI Question Paper Generator)
-
-An advanced, AI-powered assessment generation platform designed to build balanced, syllabus-aligned question papers. It processes reference documents (textbooks, syllabus, slide decks, notes) and utilizes RAG (Retrieval-Augmented Generation) coupled with Knowledge Graphs to map questions against Bloom's Taxonomy levels, course outcomes (COs), and difficulty targets.
+<div align="center">
+  <h1>TESTBOOST.AI</h1>
+  <p><strong>An AI-powered assessment generation platform that transforms educational materials into curriculum-aware question papers using Graph-RAG, knowledge graphs, Bloom's Taxonomy alignment, and multi-stage validation.</strong></p>
+</div>
 
 ---
 
-## 🚀 Key Features
+## 🛑 The Problem
 
-*   **Document Analysis**: Automated parsing of textbooks, notes, syllabi, and past question papers (PDF, DOCX, PPTX, TXT) with automatic metadata/copyright page filtering and scanned PDF OCR.
-*   **Vector Search & Graph RAG**: Combines vector indexing (Qdrant) and semantic graph mapping (Neo4j) to query course topics accurately.
-*   **Balanced Blueprint Alignment**: Generate question papers matching strict blueprints (e.g., specific marks per section, difficulty distributions, target Bloom levels).
-*   **Async Task Processing**: Celery background queues process intensive document chunking, embeddings, and paper generation reliably.
-*   **Modular Monolith Architecture**: Clean division of concerns with FastAPI (modular routers/services) and a Next.js frontend.
+Creating high-quality, balanced question papers is a time-consuming, manual process for educators. It often suffers from:
+- **Lack of alignment** with strict syllabus blueprints and Bloom's Taxonomy.
+- **Inconsistent difficulty** across different assessments.
+- **Tedious cross-referencing** against course outcomes (COs) and vast reference materials (textbooks, slides, notes).
+
+## 💡 The Solution
+
+**TESTBOOST.AI** automates this workflow. It digests your entire curriculum context—textbooks, syllabi, past papers—and generates precise, validated question papers that adhere to your exact blueprint constraints (marks distribution, difficulty curves, cognitive levels). 
+
+---
+
+## 🏗️ Architecture
+
+TESTBOOST.AI employs a robust, modular architecture combining Vector Search and Graph RAG to ensure semantic accuracy and relational context.
+
+```mermaid
+flowchart TD
+    A[Teacher Uploads PDF] --> B(Document Processing & OCR)
+    B --> C(Curriculum Extraction)
+    C --> D{Knowledge Engine}
+    
+    D -->|Semantic Mapping| E[(Neo4j Knowledge Graph)]
+    D -->|Embeddings| F[(Qdrant Vector DB)]
+    D -->|Relational Data| G[(PostgreSQL)]
+    
+    E --> H(Graph-RAG Retrieval)
+    F --> H
+    
+    H --> I(Question Generation)
+    I --> J(Validation Pipeline)
+    J --> K[Generated Question Paper]
+    
+    classDef primary fill:#4F46E5,stroke:#312E81,stroke-width:2px,color:#fff;
+    classDef secondary fill:#10B981,stroke:#047857,stroke-width:2px,color:#fff;
+    classDef db fill:#F59E0B,stroke:#B45309,stroke-width:2px,color:#fff;
+    
+    class A,K primary;
+    class B,C,H,I,J secondary;
+    class E,F,G db;
+```
+
+---
+
+## ✨ Features
+
+- **Document Analysis**: Automated parsing of PDFs, DOCX, PPTX, TXT with smart metadata filtering and OCR for scanned documents.
+- **Graph RAG**: Unifies Qdrant (vector index) and Neo4j (semantic graph) to answer complex, multi-hop curriculum queries.
+- **Blueprint-Driven Generation**: Strictly adheres to targets for marks, Bloom's Taxonomy, and difficulty distributions.
+- **Multi-Stage Validation**: Output is validated against original context to prevent AI hallucinations.
+- **Async Task Processing**: Background document chunking and embedding handled reliably via Celery & Redis.
+
+---
+
+## 📸 Screenshots
+
+*(Add your beautiful application screenshots here to showcase the UI/UX)*
+
+> **Placeholder:**
+> - Dashboard View
+> - PDF Upload & Processing View
+> - Blueprint Configuration
+> - Final Question Paper Output
 
 ---
 
 ## 🛠️ Tech Stack
 
 ### Backend
-*   **Core Framework**: [FastAPI](https://fastapi.tiangolo.com/) (Python 3.10+)
-*   **Database & ORM**: PostgreSQL & [SQLAlchemy](https://www.sqlalchemy.org/)
-*   **Vector Engine**: [Qdrant](https://qdrant.tech/)
-*   **Graph Engine**: [Neo4j](https://neo4j.com/)
-*   **Task Queue**: [Celery](https://docs.celeryq.dev/) & [Redis](https://redis.io/)
-*   **AI Frameworks**: LangChain, LangGraph, Groq / Gemini / OpenAI APIs
+- **Core:** FastAPI (Python 3.10+)
+- **Databases:** PostgreSQL (SQLAlchemy), Qdrant (Vector), Neo4j (Graph)
+- **Task Queue:** Celery & Redis
+- **AI/LLM:** LangChain, LangGraph, Groq / Gemini / OpenAI APIs
 
 ### Frontend
-*   **Framework**: [Next.js](https://nextjs.org/) (App Router, React 19)
-*   **Styling**: Tailwind CSS v4 & Lucide Icons
+- **Framework:** Next.js (App Router, React 19)
+- **Styling:** Tailwind CSS v4
+- **Icons:** Lucide Icons
 
 ---
 
-## 📁 Repository Structure
+## ⚙️ How It Works
 
-```text
-├── backend/                  # FastAPI Application
-│   ├── app/                  # Application Modules
-│   │   ├── assessment/       # Question papers, blueprints & grading schemas
-│   │   ├── auth/             # User signup, login & session tokens
-│   │   ├── core/             # DB clients, base configs, security utils
-│   │   ├── curriculum/       # Course outcome mappings & schemas
-│   │   ├── documents/        # PDF extraction, OCR, and storage
-│   │   └── export/           # Document formatting & export (PDF/DOCX)
-│   ├── Dockerfile            # Container definition for api & workers
-│   ├── requirements.txt      # Python dependencies
-│   ├── worker.py             # Celery worker bootstrapper
-│   └── .env.example          # Template configuration
-│
-├── frontend/                 # Next.js Application
-│   ├── app/                  # Pages, layouts, dashboards
-│   ├── package.json          # Node dependencies & scripts
-│   └── tsconfig.json         # TypeScript compiler configurations
-│
-├── docker-compose.yml        # Development environment services
-├── nginx.conf                # Local reverse proxy setup
-└── terminalcode              # Quick command snippets for local dev
+1. **Ingestion:** Educators upload raw materials. The backend extracts text, resolves OCR, and chunks the data.
+2. **Knowledge Mapping:** Chunks are embedded into Qdrant. Entities and relationships are extracted to populate the Neo4j Knowledge Graph.
+3. **Configuration:** The user defines a Blueprint (e.g., 50 marks, 40% Application level, 20% Hard difficulty).
+4. **Retrieval & Generation:** Graph-RAG queries the unified context. An LLM agent generates questions matching the blueprint.
+5. **Validation:** A secondary AI pipeline verifies each question's accuracy and relevance against the source text.
+6. **Export:** The final paper is rendered and can be exported as PDF/DOCX.
+
+---
+
+## 🚀 Installation
+
+### Option A: Docker Compose (Recommended)
+
+1. **Configure Environment:**
+   ```bash
+   cp backend/.env.example backend/.env
+   # Add your API keys (Gemini, OpenAI, Groq)
+   ```
+2. **Spin up Core Stack:**
+   ```bash
+   docker compose up -d
+   ```
+3. **Spin up Full AI Stack (Celery, Vector, Graph):**
+   ```bash
+   docker compose --profile celery --profile ai up -d
+   ```
+
+### Option B: Local Development
+
+**Backend:**
+```bash
+cd backend
+python -m venv venv
+source venv/bin/activate  # Windows: .\venv\Scripts\activate
+pip install -r requirements.txt
+uvicorn app.main:app --reload
+```
+*Optional (in separate terminal):* `celery -A worker.celery_app worker --loglevel=info --pool=solo`
+
+**Frontend:**
+```bash
+cd frontend
+npm install
+npm run dev
 ```
 
----
-
-## ⚙️ Setup & Installation
-
-### Option A: Run via Docker Compose (Recommended)
-
-Docker Compose is configured with optional service profiles. You can launch standard databases or spin up the entire AI and task-monitoring stacks.
-
-1.  **Configure environment variables**:
-    Copy the example config in the backend folder and fill in your API keys (e.g., Gemini, OpenAI, or Groq):
-    ```bash
-    cp backend/.env.example backend/.env
-    ```
-2.  **Spin up the base stack** (FastAPI, PostgreSQL, Redis):
-    ```bash
-    docker compose up -d
-    ```
-3.  **Spin up with Celery & AI components** (Celery Workers, Qdrant, Neo4j):
-    ```bash
-    docker compose --profile celery --profile ai up -d
-    ```
-    *Available profiles:*
-    *   `celery`: Launches the Celery worker and the Flower monitoring tool.
-    *   `ai`: Launches Qdrant Vector DB and Neo4j Graph DB.
-    *   `storage`: Launches MinIO object storage.
-    *   `proxy`: Launches an Nginx reverse proxy.
+**Interface URLs:**
+- Frontend: `http://localhost:3000`
+- API Docs: `http://localhost:8000/docs`
+- Celery Dashboard: `http://localhost:5555`
 
 ---
 
-### Option B: Local Manual Development
+## 🗺️ Roadmap
 
-#### 1. Running the Backend (FastAPI)
-
-1.  Navigate to the `backend` directory:
-    ```bash
-    cd backend
-    ```
-2.  Create and activate a virtual environment:
-    ```bash
-    python -m venv venv
-    # Windows:
-    .\venv\Scripts\activate
-    # macOS/Linux:
-    source venv/bin/activate
-    ```
-3.  Install dependencies:
-    ```bash
-    pip install -r requirements.txt
-    ```
-4.  Configure `.env`:
-    Create a `.env` file based on `.env.example` and set up database/API parameters.
-5.  Start the FastAPI application:
-    ```bash
-    uvicorn app.main:app --reload
-    ```
-6.  *(Optional)* Start the Celery worker (in a separate terminal inside active virtual environment):
-    ```bash
-    celery -A worker.celery_app worker --loglevel=info --pool=solo
-    ```
-
-#### 2. Running the Frontend (Next.js)
-
-1.  Navigate to the `frontend` directory:
-    ```bash
-    cd frontend
-    ```
-2.  Install dependencies:
-    ```bash
-    npm install
-    ```
-3.  Start the development server:
-    ```bash
-    npm run dev
-    ```
-4.  Access the web UI at `http://localhost:3000`.
+- [ ] Interactive Canvas for manual question tweaking
+- [ ] Multi-tenant support for different schools/departments
+- [ ] Auto-grading module for student submissions
+- [ ] Export directly to Canvas/Moodle LMS
 
 ---
-
-## 🔗 Interface URLs
-
-When using the default ports:
-
-*   **Frontend**: `http://localhost:3000`
-*   **FastAPI API Docs**: `http://localhost:8000/docs` (Swagger UI) or `/redoc` (ReDoc)
-*   **Flower (Celery Dashboard)**: `http://localhost:5555`
-*   **Qdrant Console**: `http://localhost:6333/dashboard`
-*   **Neo4j Console**: `http://localhost:7474`
+<div align="center">
+  <i>Built to bridge the gap between educational content and effective assessment.</i>
+</div>
